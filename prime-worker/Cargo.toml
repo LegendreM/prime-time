@@ -1,0 +1,6 @@
+[package]
+name = "prime-worker"
+version = "0.1.0"
+authors = ["mlegendre <mlegendre@vente-privee.com>"]
+
+[dependencies]
