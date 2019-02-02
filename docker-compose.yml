@@ -1,0 +1,12 @@
+version: '2'
+services:
+  api:
+    build: prime-api
+    ports:
+     - "80:3000"
+  worker:
+    build: prime-worker
+  rabbit:
+    image: rabbitmq:3
+  postgres:
+    image: postgres
