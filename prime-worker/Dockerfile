@@ -8,7 +8,7 @@ COPY . /build
 
 RUN cargo build --release
 
-FROM rust
+FROM debian
 
 COPY --from=build /build/target/release/prime-worker /
 
