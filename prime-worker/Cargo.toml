@@ -4,3 +4,4 @@ version = "0.1.0"
 authors = ["mlegendre <mlegendre@vente-privee.com>"]
 
 [dependencies]
+amqp = "0.1.3"
