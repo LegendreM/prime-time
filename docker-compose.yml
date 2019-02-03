@@ -10,3 +10,5 @@ services:
     image: rabbitmq:3
   postgres:
     image: postgres
+    environment:
+      - POSTGRES_USER=root
