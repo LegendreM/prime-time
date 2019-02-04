@@ -8,12 +8,10 @@ extern crate serde_derive;
 use amqp::{Session, Basic, protocol};
 use std::{thread, time};
 
-use serde::{Deserialize, Serialize};
-use serde_json::Result;
 
 #[derive(Deserialize)]
 struct Task {
-    task: u32,
+    task: u64,
     token: u32,
 }
 
@@ -24,8 +22,36 @@ struct Update {
     result: Option<String>,
 }
 
-fn process() -> String {
-    "HELLO !".to_string()
+fn check_prime(n: u64) -> bool {
+    for x in 2..n {
+        if n % x == 0 {
+            return false;
+        }
+    }
+    true
+}
+
+fn next_prime(n: u64) -> u64 {
+    let mut v = n + 1;
+    while !check_prime(v) {
+        v = v + 1;
+    }
+    v
+}
+
+fn process(task: u64) -> String {
+    let mut factor_list = Vec::new();
+    let mut task = task;
+    let mut prime = next_prime(1);
+
+    while prime <= task {
+        while task % prime == 0 {
+            task = task / prime;
+            factor_list.push(prime);
+        }
+        prime = next_prime(prime);
+    }
+    factor_list.iter().map(|x| format!("{}", x)).collect::<Vec<String>>().join("x")
 }
 
 fn post_update(channel: &mut amqp::Channel, token: u32, state: String, result: Option<String>) {
@@ -61,9 +87,15 @@ fn conn_loop() {
     for get_result in channel_in.basic_get(queue_name, false) {
         println!("Received: {:?}", String::from_utf8_lossy(&get_result.body));
         get_result.ack();
-        let task : Task = serde_json::from_str(&String::from_utf8_lossy(&get_result.body)).unwrap();
+        let task : Task = match serde_json::from_str(&String::from_utf8_lossy(&get_result.body)) {
+            Ok(task) => task,
+            Err(e) => {
+                println!("Error: {:?}", e);
+                return ;
+            },
+        };
         post_update(&mut channel_out, task.token, "working".to_string(), None);
-        let result = process();
+        let result = process(task.task);
         println!("Process: {:?}", result);
         post_update(&mut channel_out, task.token, "done".to_string(), Some(result));
     }
