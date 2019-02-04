@@ -1,14 +1,22 @@
 version: '2'
 services:
-  api:
-    build: prime-api
-    ports:
-     - "80:3000"
-  worker:
-    build: prime-worker
   rabbit:
     image: rabbitmq:3
   postgres:
     image: postgres
     environment:
       - POSTGRES_USER=root
+  sync:
+    build: prime-api
+    command: bin/bundle exec rails runner app/scripts/update_script.rb
+  api:
+    build: prime-api
+    ports:
+     - "80:3000"
+    depends_on:
+      - rabbit
+      - postgres
+  worker:
+    build: prime-worker
+    depends_on:
+      - rabbit
