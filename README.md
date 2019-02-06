@@ -9,7 +9,7 @@ create db:
 `docker-compose run api bin/bundle exec rake db:create`
 
 migrate db:    
-`docker-compose run api bin/bundle exec rake db:create`
+`docker-compose run api bin/bundle exec rake db:migrate`
 
 scale workers:    
 `docker-compose up --scale worker=3`
